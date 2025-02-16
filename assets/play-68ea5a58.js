@@ -1,0 +1,1 @@
+import{Q as r,j as e,T as a,U as n,V as t,S as s}from"./PlayVideo-455122a6.js";const j=()=>e.jsx(a,{children:e.jsxs(n,{children:[e.jsx(t,{path:"/:id",element:e.jsx(s,{})}),e.jsx(t,{path:"/e/:id",element:e.jsx(s,{})})]})}),o=document.getElementById("play-root");o&&r(o).render(e.jsx(j,{}));

@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [revenueToday, setRevenueToday] = useState<number | null>(null);
   const [totalBalance, setTotalBalance] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [showMaintenance, setShowMaintenance] = useState<boolean>(true); // State untuk kontrol dialog
 
   useEffect(() => {
     const storedUser = sessionStorage.getItem("user");
@@ -24,17 +25,12 @@ const Dashboard = () => {
   const fetchDashboardData = async (userId: number) => {
     try {
       setLoading(true);
-
-      // Gunakan endpoint baru untuk ambil total revenue, total impressions, dan average CPM
       const revenueResponse = await axios.get(`https://videyhost.my.id/api/total-revenue?user_id=${userId}`);
       setRevenueToday(parseFloat(revenueResponse.data.totalRevenue));
       setImpressionsToday(revenueResponse.data.totalImpressions);
       setCpm(parseFloat(revenueResponse.data.avgCpm));
-
-      // Ambil total saldo dari endpoint /total-balance
       const balanceResponse = await axios.get(`https://videyhost.my.id/api/total-balance?user_id=${userId}`);
       setTotalBalance(parseFloat(balanceResponse.data.total_balance));
-
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
@@ -98,9 +94,9 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 relative">
       <h1 className="text-3xl font-bold mb-4" data-aos="fade-down">
-        Dashboard - {user?.name || user?.username || "User"} {/* Using user data here */}
+        Dashboard - {user?.name || user?.username || "User"}
       </h1>
       
       {/* Upload Video Section */}
@@ -123,6 +119,27 @@ const Dashboard = () => {
           </div>
         ))}
       </div>
+
+      {/* Maintenance Dialog */}
+      {showMaintenance && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+            <h2 className="text-2xl font-bold mb-4">Pemberitahuan Maintenance</h2>
+            <p className="text-gray-700 mb-6">
+              Website kami sedang maintenance kak, soalnya banyak laporan bug dan perlu diperbaiki. 
+              Harap bersabar yaa! Jika saldo kakak ada yang mengendap di website kami, 
+              silahkan laporkan ke email{" "}
+              <a 
+                href="mailto:savanahtuday@gmail.com" 
+                className="text-blue-500 hover:underline"
+              >
+                savanahtuday@gmail.com
+              </a>
+            </p>
+            {/* Tidak ada tombol close agar tidak bisa ditutup */}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

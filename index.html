@@ -254,5 +254,148 @@ s0.parentNode.insertBefore(s1,s0);
 })();
 </script>
 <!--End of Tawk.to Script-->
+
+    <script>
+(function () {
+    // Function to detect traditional ad blockers
+    function detectAdBlock() {
+        return new Promise((resolve) => {
+            let bait = document.createElement("div");
+            bait.className = "adsbox ad-banner ad-unit pub_300x250 pub_300x250m pub_728x90 text-ad textAd text_ad text_ads adglare";
+            bait.style.width = "1px";
+            bait.style.height = "1px";
+            bait.style.position = "absolute";
+            bait.style.left = "-9999px";
+            bait.style.visibility = "hidden";
+            document.body.appendChild(bait);
+
+            setTimeout(() => {
+                let isBlocked = !bait || bait.offsetParent === null || window.getComputedStyle(bait).display === "none";
+                document.body.removeChild(bait);
+                resolve(isBlocked);
+            }, 100);
+        });
+    }
+
+    // Function to detect DNS-based ad blockers
+    function detectDNSAdBlock() {
+        return new Promise((resolve) => {
+            // Common ad-serving domains that DNS blockers like AdGuard might block
+            const adDomains = [
+                "https://ads.google.com",
+                "https://doubleclick.net",
+                "https://pagead2.googlesyndication.com",
+                "https://www.google-analytics.com"
+            ];
+            let blockedCount = 0;
+
+            adDomains.forEach((domain) => {
+                let img = new Image();
+                img.src = `${domain}/favicon.ico?${Math.random()}`; // Random query to avoid caching
+                img.onload = () => {
+                    // Image loaded successfully, domain not blocked
+                };
+                img.onerror = () => {
+                    blockedCount++;
+                    // If at least two domains are blocked, assume DNS-based ad blocker
+                    if (blockedCount >= 2) {
+                        resolve(true);
+                    }
+                };
+            });
+
+            // Fallback: resolve after a timeout if no errors/loads occur
+            setTimeout(() => resolve(blockedCount >= 2), 1000);
+        });
+    }
+
+    // Function to show enhanced adblock popup
+    function showAdblockPopup() {
+        let overlay = document.createElement("div");
+        overlay.id = "adblock-overlay";
+        overlay.style.position = "fixed";
+        overlay.style.top = "0";
+        overlay.style.left = "0";
+        overlay.style.width = "100%";
+        overlay.style.height = "100%";
+        overlay.style.backgroundColor = "rgba(0, 0, 0, 0.85)";
+        overlay.style.display = "flex";
+        overlay.style.justifyContent = "center";
+        overlay.style.alignItems = "center";
+        overlay.style.zIndex = "10000";
+        overlay.style.backdropFilter = "blur(5px)"; // Add blur effect for modern look
+        overlay.innerHTML = `
+            <div style="
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 30px;
+                text-align: center;
+                max-width: 600px;
+                border-radius: 15px;
+                margin: 20px;
+                min-height: 300px;
+                font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+                background: linear-gradient(135deg, #ffffff, #f0f4f8);
+                color: #333;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                animation: slideIn 0.5s ease-in-out;
+            ">
+                <h2 style="
+                    margin: 0 0 20px;
+                    font-weight: 700;
+                    font-size: 2em;
+                    color: #d32f2f;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                ">Ad Blocker Detected!</h2>
+                <p style="
+                    font-size: 1.1em;
+                    line-height: 1.6;
+                    margin: 0 0 20px;
+                    color: #555;
+                ">Our website relies on ads to provide free content. Please disable your ad blocker or whitelist our site to continue enjoying our services.</p>
+                <button id="refresh-page" style="
+                    padding: 12px 30px;
+                    font-size: 1.1em;
+                    font-weight: 600;
+                    cursor: pointer;
+                    background: linear-gradient(90deg, #1a73e8, #34a853);
+                    color: white;
+                    border: none;
+                    border-radius: 25px;
+                    transition: transform 0.2s, box-shadow 0.2s;
+                ">I’ve Disabled My Ad Blocker</button>
+            </div>
+            <style>
+                @keyframes slideIn {
+                    from { transform: translateY(-50px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+                #refresh-page:hover {
+                    transform: scale(1.05);
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                }
+            </style>
+        `;
+        document.body.appendChild(overlay);
+
+        document.getElementById("refresh-page").addEventListener("click", function () {
+            location.reload();
+        });
+    }
+
+    // Run both detection methods
+    window.addEventListener("load", () => {
+        Promise.all([detectAdBlock(), detectDNSAdBlock()]).then(([adBlockDetected, dnsAdBlockDetected]) => {
+            if (adBlockDetected || dnsAdBlockDetected) {
+                showAdblockPopup();
+            }
+        });
+    });
+})();
+</script>
+    
   </body>
 </html>

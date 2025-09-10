@@ -131,20 +131,6 @@ export function PlayVideo() {
       return;
     }
 
-    // Fungsi untuk menangani event dan redirect
-    const handlePlayerEventRedirect = () => {
-        const now = new Date().getTime();
-        const lastRedirectTimestamp = sessionStorage.getItem('lastRedirectTimestamp');
-        const fifteenSeconds = 15 * 1000;
-
-        // Jika belum ada timestamp atau sudah lebih dari 15 detik
-        if (!lastRedirectTimestamp || (now - parseInt(lastRedirectTimestamp, 10)) > fifteenSeconds) {
-            const randomUrl = randomUrls[Math.floor(Math.random() * randomUrls.length)];
-            window.open(randomUrl, '_blank');
-            sessionStorage.setItem('lastRedirectTimestamp', now.toString());
-        }
-    };
-
     const initPlayer = () => {
       if (playerInstance.current) {
         playerInstance.current.destroy();
@@ -174,11 +160,6 @@ export function PlayVideo() {
             "posterImage": ""
           }
         });
-
-        // Menambahkan event listener ke instance player
-        playerInstance.current.on('play', handlePlayerEventRedirect);
-        playerInstance.current.on('pause', handlePlayerEventRedirect);
-        playerInstance.current.on('seeked', handlePlayerEventRedirect);
       }
     };
     
@@ -192,7 +173,6 @@ export function PlayVideo() {
     return () => {
       clearInterval(checkInterval);
       if (playerInstance.current) {
-        // .destroy() akan menghapus semua event listener yang terkait secara otomatis
         playerInstance.current.destroy();
         playerInstance.current = null;
       }
